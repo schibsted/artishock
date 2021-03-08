@@ -1,0 +1,150 @@
+################################################################################
+#                                                                              #
+# Artishock                                                                    #
+#                                                                              #
+# Copyright 2021 Schibsted                                                     #
+#                                                                              # 
+# Unless required by applicable law or agreed to in writing, software          #
+# distributed under the License is distributed on an "AS IS" BASIS,            #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.     #
+#                                                                              #
+# See the License for the specific language governing permissions and          #
+# limitations under the License.                                               #
+#                                                                              #
+################################################################################
+
+The platform specific distributions are bundled with parts of the AdoptOpenJDk from
+https://github.com/AdoptOpenJDK/openjdk15-binaries.
+
+Futher project dependencies are included as JARs.
+
+See the `legal` directory as well as the individual JARs in the `lib` directory for more information.
+
+OpenJDK
+  LICENSE: GPL 2.0 with Class-path Exception,
+           https://github.com/openjdk/
+
+  The Mozilla Elliptic Curve Crypotography library is used
+    LICENSE: LGPL 2.1
+
+Groovy
+  LICENSE: Apache 2.0
+  NOTICE: https://github.com/apache/groovy/blob/master/NOTICE
+
+Kotlin
+  LICENSE: Apache 2.0
+  NOTICE:  https://github.com/JetBrains/kotlin/tree/master/license
+
+-------
+
+Airline
+  LICENSE: Apache 2.0,
+           https://github.com/airlift/airline/
+
+Apache Commons Lang
+  LICENSE: Apache 2.0
+  NOTICE: https://github.com/apache/commons-lang/blob/master/NOTICE.txt
+
+Apache Log4j
+  LICENSE: Apache 2.0
+  NOTICE: https://github.com/apache/log4j/blob/trunk/NOTICE
+
+Apache HttpComponents Core
+  LICENSE: Apache 2.0,
+  NOTICE: https://github.com/apache/httpcomponents-core/blob/master/NOTICE.txt
+  
+Apache HttpComponents Client
+  LICENSE: Apache 2.0,
+  NOTICE: https://github.com/apache/httpcomponents-client/blob/master/NOTICE.txt
+
+Apache Commons Codec
+  LICENSE: Apache 2.0,
+  NOTICE: https://github.com/apache/commons-codec/blob/master/NOTICE.txt
+
+Apache Commons Lang
+  LICENSE: Apache 2.0,
+  NOTICE: https://github.com/apache/commons-lang/blob/master/NOTICE.txt
+
+Apache Commons IO
+  LICENSE: Apache 2.0
+  NOTICE: https://github.com/apache/commons-io/blob/master/NOTICE.txt
+
+FasterXML Jackson Core
+  LICENSE: Apache 2.0,
+           https://github.com/FasterXML/jackson-core
+
+FasterXML Jackson Annotations
+  LICENSE: Apache 2.0,
+           https://github.com/FasterXML/jackson-annotations
+
+FasterXML Jackson Databind
+  LICENSE: Apache 2.0,
+           https://github.com/FasterXML/jackson-databind
+
+FasterXML Jackson Datatype JDK8
+  LICENSE: Apache 2.0,
+           https://github.com/FasterXML/jackson-modules-java8
+
+FasterXML Jackson Dataformat XML
+  LICENSE: Apache 2.0,
+           https://github.com/FasterXML/jackson-dataformat-xml
+
+FasterXML Jackson BOM
+  LICSENS: Apache 2.0,
+           https://github.com/FasterXML/jackson-bom
+
+FasterXML Jackson JAXB Annotations
+  LICENSE: Apache 2.0,
+           https://github.com/FasterXML/jackson-modules-base
+
+FasterXML Woodstox
+  LICENSE: Apache 2.0,
+           https://github.com/FasterXML/woodstox
+
+Google Guava
+  LICENSE: Apache 2.0,
+           https://github.com/google/guava/
+
+Google J2ObjC
+  LICENSE: Apache 2.0,
+           https://github.com/google/j2objc
+
+Google Findbugs JSR-305
+  LICENSE: 2-Clause BSD,
+           https://github.com/findbugsproject/findbugs/blob/master/findbugs/licenses/LICENSE-jsr305.txt
+
+Google Error Prone
+  LICENES: Apache 2.0,
+           https://github.com/google/error-prone
+
+Jakarta XML Binding
+  LICENSE: EDL 1.0
+  NOTICE: https://github.com/eclipse-ee4j/jaxb-api/blob/master/NOTICE.md
+
+Jakarta Activation
+  LICENSE: EDL 1.0
+  NOTICE: https://github.com/eclipse-ee4j/jaf/blob/master/NOTICE.md
+
+javax.inject
+  LICENSE: Apache 2.0,
+           https://search.maven.org/artifact/javax.inject/javax.inject/1/jar
+
+Jfrog Artifactory Client
+  LICENSE: Apache 2.0,
+           https://github.com/jfrog/artifactory-client-java
+
+SLF4J
+  LICENSE: MIT,
+           https://github.com/qos-ch/slf4j/blob/master/LICENSE.txt
+
+Square OkHttp
+  LICENSE: Apache 2.0,
+           https://github.com/square/okhttp
+
+Square Okio
+  LICENSE: Apache 2.0,
+           https://github.com/square/okio
+
+Type Tools Checker Equal
+  LICENSE: MIT,
+           https://github.com/typetools/checker-framework/blob/master/checker-qual/LICENSE.txt

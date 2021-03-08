@@ -1,0 +1,106 @@
+/*
+ * Copyright 2021 Schibsted. Licensed under the terms of the Apache 2.0 license. See LICENSE in the project root.
+ */
+
+plugins {
+  id('java')
+  id('application')
+  id 'org.beryx.runtime' version '1.12.1'
+}
+
+repositories {
+  mavenCentral()
+  jcenter()
+}
+
+mainClassName = 'com.schibsted.security.artishock.ArtishockCli'
+def version = '0.0.1'
+
+dependencies {
+  implementation('org.apache.logging.log4j:log4j-core:2.13.1')
+  implementation('org.slf4j:slf4j-simple:1.7.30')
+
+  implementation('com.google.guava:guava:30.0-jre')
+  implementation('com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.12.2')
+  implementation('com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.12.2')
+  implementation("com.squareup.okhttp3:okhttp:4.9.0")
+  implementation("io.airlift:airline:0.8")
+
+  implementation("org.jfrog.artifactory.client:artifactory-java-client-services:2.8.6")
+  implementation("org.codehaus.groovy:groovy:3.0.6") // Force upgrade in artifactory client
+}
+
+java {
+  sourceCompatibility = JavaVersion.VERSION_11
+  targetCompatibility = JavaVersion.VERSION_11
+}
+
+runtime {
+  options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
+  imageZip = file("$buildDir/artishock.zip")
+  additive = true
+  modules = ["jdk.crypto.ec"]
+
+  jpackage {
+    skipInstaller = true
+    imageName = "artishock"
+  }
+
+  targetPlatform("linux") {
+    jdkHome = jdkDownload("https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk-15.0.2%2B7/OpenJDK15U-jdk_x64_linux_hotspot_15.0.2_7.tar.gz")
+  }
+
+  targetPlatform("win") {
+    jdkHome = jdkDownload("https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk-15.0.2%2B7/OpenJDK15U-jdk_x64_windows_hotspot_15.0.2_7.zip")
+  }
+
+  targetPlatform("mac") {
+    jdkHome = jdkDownload("https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk-15.0.2%2B7/OpenJDK15U-jdk_x64_mac_hotspot_15.0.2_7.tar.gz")
+  }
+}
+
+jar {
+  enabled = true
+  manifest {
+    attributes(
+            'Bundle-License': 'https://www.apache.org/licenses/LICENSE-2.0.txt',
+            'Implementation-Version': version,
+            'Implementation-URL': 'https://github.com/schibsted/artishock'
+    )
+  }
+}
+
+
+// Copy LICENSE and NOTICE into the JAR
+tasks.withType(Jar) {
+    from(project.projectDir) {
+        include 'LICENSE', 'NOTICE'
+        into 'META-INF'
+    }
+}
+
+// Copy LICENSE and NOTICE into the legal directory in each image
+def license = "${project.projectDir}/LICENSE"
+def notice = "${project.projectDir}/NOTICE"
+
+task copyToLinuxImage(type: Copy) {
+  dependsOn("runtime")
+  from license, notice
+  into "${project.buildDir}/image/artishock-linux/legal/"
+}
+
+task copyToMacImage(type: Copy) {
+  dependsOn("runtime")
+  from license, notice
+  into "${project.buildDir}/image/artishock-mac/legal/"
+}
+
+task copyToWinImage(type: Copy) {
+  dependsOn("runtime")
+  from license, notice
+  into "${project.buildDir}/image/artishock-win/legal/"
+}
+
+runtimeZip.dependsOn('copyToLinuxImage')
+runtimeZip.dependsOn('copyToMacImage')
+runtimeZip.dependsOn('copyToWinImage')
