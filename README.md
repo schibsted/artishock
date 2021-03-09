@@ -1,6 +1,6 @@
 ![](src/main/logo/artishock.svg)
 # Artishock
-A tool to investigate Dependency Confusion in Artifactory.
+A tool to investigate Dependency Confusion in Artifactory. See our [blog post](https://schibsted.com/blog/dependency-confusion-how-we-protected-ourselves/) for more information.
 
 ## Install
 Binaries for Linux, Mac and Windows can be found under [releases](https://github.com/schibsted/artishock/releases) (Windows is not tested).
