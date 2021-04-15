@@ -40,6 +40,7 @@ public class PyPiClient {
     var preprocessed = raw.replaceAll("\".*\"", "\"\"")
         .replace("\n", "")
         .replaceAll("<br/>", "")
+        .replaceAll("<br />", "")
         .replaceAll("<head>.*</head>", "");
 
     var xmlMapper = new XmlMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
