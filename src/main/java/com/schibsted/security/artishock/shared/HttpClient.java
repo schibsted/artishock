@@ -70,6 +70,9 @@ public class HttpClient {
     var request = HttpClient.prepareRequest(connectionInfo, path);
 
     try (var response = HttpClient.execute(request)) {
+      if (!response.isSuccessful()) {
+        throw new RuntimeException("Download not successful from " + request.url());
+      }
       return response.body().string();
     } catch (IOException e) {
       throw new RuntimeException("Failed to get body from " + request.url());
