@@ -10,7 +10,11 @@ public class Config {
   private final String artifactoryPassword;
 
   public Config(String artifactoryUrl, String artifactoryUsername, String artifactoryPassword) {
-    this.artifactoryUrl = artifactoryUrl;
+    if (artifactoryUrl.endsWith("/")) {
+      this.artifactoryUrl = artifactoryUrl.substring(0, artifactoryUrl.length() - 1);
+    } else {
+      this.artifactoryUrl = artifactoryUrl;
+    }
     this.artifactoryUsername = artifactoryUsername;
     this.artifactoryPassword = artifactoryPassword;
   }
