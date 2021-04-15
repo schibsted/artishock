@@ -54,7 +54,7 @@ public class Renderer {
       case JSON:
         return serializeToJSON(object) + "\n";
       case TEXT:
-        return Joiner.on("\n").join(object.stream().map(Object::toString).collect(Collectors.toList())) + "\n";
+        return Joiner.on("\n").join(object.stream().map(Object::toString).filter(s -> !s.isEmpty()).collect(Collectors.toList())) + "\n";
       default:
         throw new RuntimeException("Unexpected output format");
     }
