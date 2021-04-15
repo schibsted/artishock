@@ -86,6 +86,9 @@ public class Pypi {
   }
 
   boolean existsUpstream(PyPiPackageIdentifier packageIdentifier) {
+    if (packageIdentifier.getPackageName().isEmpty()) {
+      return false;
+    }
     return pyPiClient.packageExistsCached(pyPiClient.upstream(), packageIdentifier);
   }
 
