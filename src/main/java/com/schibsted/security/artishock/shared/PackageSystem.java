@@ -12,7 +12,8 @@ public enum PackageSystem {
   NPM("npm"),
   MAVEN("maven"),
   GRADLE("gradle"),
-  PYPI("pypi");
+  PYPI("pypi"),
+  COMPOSER("composer");
 
   private final String alias;
 

@@ -33,7 +33,8 @@ public class Artishock {
   }
 
   public List<Object> repoLs(String packageSystem) {
-    throwIfNotSupportedOptional(packageSystem, List.of(PackageSystem.MAVEN, PackageSystem.NPM, PackageSystem.PYPI));
+    throwIfNotSupportedOptional(packageSystem, List.of(PackageSystem.MAVEN, PackageSystem.NPM, PackageSystem.PYPI,
+            PackageSystem.COMPOSER));
 
     return artifactoryClient.repoLs().stream()
         .filter(f -> packageSystem == null || f.getArtifactType().equals(packageSystem))
