@@ -10,11 +10,8 @@ import com.schibsted.security.artishock.npm.NpmPackageIdentifier;
 import com.schibsted.security.artishock.npm.NpmPackageOrScope;
 import com.schibsted.security.artishock.shared.HttpClient;
 import com.schibsted.security.artishock.shared.SimpleCache;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -33,7 +30,7 @@ public class NpmClient {
 
   public List<NpmPackageIdentifier> getPackageList(List<NpmPackageIdentifier> packages, ConnectionInfo connectionInfo) {
     log.info(() -> "Fetching select packages from " + connectionInfo.getPrefix());
-    return new ArrayList<>(getNpmPackages(packages, connectionInfo).keySet());
+    return checkUpstream(packages, connectionInfo);
   }
 
   public List<NpmPackageOrScope> notClaimedOrg(List<String> scopes) {
@@ -61,52 +58,36 @@ public class NpmClient {
     }
   }
 
-  Map<NpmPackageIdentifier, NpmPackageInfo> getNpmPackages(List<NpmPackageIdentifier> packages, ConnectionInfo connectionInfo) {
-    var result = new HashMap<NpmPackageIdentifier, NpmPackageInfo>();
+  List<NpmPackageIdentifier> checkUpstream(List<NpmPackageIdentifier> packages, ConnectionInfo connectionInfo) {
+    var result = new ArrayList<NpmPackageIdentifier>();
     for (var packageName : packages) {
-      var npmjs = getPackageInfo(packageName, connectionInfo);
-      var p = convert(npmjs);
-      p.ifPresent(npmPackageInfo -> result.put(packageName, npmPackageInfo));
+      if (existsUpstream(packageName, connectionInfo)) {
+        result.add(packageName);
+      }
     }
 
     return result;
   }
 
-  Optional<NpmPackageInfo> convert(ViewRaw viewRaw) {
-    if (viewRaw.error == null && viewRaw.errors == null) {
-      return Optional.of(new NpmPackageInfo(viewRaw));
-    } else {
-      if (viewRaw.errors != null && viewRaw.errors.get(0).status == 404) {
-        return Optional.empty();
-      } else if (viewRaw.error != null && (viewRaw.error.equals("Not found") || viewRaw.error.equals("not_found"))) {
-        return Optional.empty();
-      }
+  boolean existsUpstream(NpmPackageIdentifier packageName, ConnectionInfo connectionInfo) {
+      Supplier<String> f = () -> Boolean.toString(packageExists(packageName.toString(), connectionInfo));
+      var result = SimpleCache.getFromCacheOrExecute(connectionInfo, packageName.toString(), CacheCategory.PACKAGE_EXISTS, f);
 
-      if (viewRaw.errors != null) {
-        throw new RuntimeException(String.format("Got error %s", viewRaw.errors.get(0).message));
+      if (result.equals("true")) {
+        return true;
+      } else if (result.equals("false")) {
+        return false;
       } else {
-        throw new RuntimeException(String.format("Got error %s", viewRaw.error));
+        throw new RuntimeException(String.format("Must be 'true' or 'false' got '%s'", result));
       }
-    }
-  }
-
-  ViewRaw getPackageInfo(NpmPackageIdentifier packageName, ConnectionInfo connectionInfo) {
-    try {
-      Supplier<String> f = () -> fetchPackageInfo(packageName.toString(), connectionInfo);
-      var result = SimpleCache.getFromCacheOrExecute(connectionInfo, packageName.toString(), CacheCategory.PACKAGE_INFO, f);
-
-      return mapper.readValue(result, ViewRaw.class);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
   }
 
   boolean fetchOrgIsClaimed(ConnectionInfo connectionInfo, String scope) {
     return HttpClient.exists(connectionInfo, "/org/" + scope);
   }
 
-  private String fetchPackageInfo(String packageName, ConnectionInfo connectionInfo) {
-    return HttpClient.fetch(connectionInfo, "/" + packageName);
+  private boolean packageExists(String packageName, ConnectionInfo connectionInfo) {
+    return HttpClient.exists(connectionInfo, "/" + packageName);
   }
 
   public ConnectionInfo upstream() {
