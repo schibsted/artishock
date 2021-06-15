@@ -106,7 +106,7 @@ public class Commands {
 
   @Command(name = "repo-ls", description = "List Artifactory repositories")
   public static class RepoLs extends BaseCommand {
-    @io.airlift.airline.Option(type = OptionType.COMMAND, name = PACKAGE_SYSTEM_NAME, description = "maven, npm, pypi")
+    @io.airlift.airline.Option(type = OptionType.COMMAND, name = PACKAGE_SYSTEM_NAME, description = "maven, npm, pypi, composer")
     public String packageSystem;
 
     @Override
