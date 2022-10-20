@@ -31,8 +31,8 @@ dependencies {
 }
 
 java {
-  sourceCompatibility = JavaVersion.VERSION_16
-  targetCompatibility = JavaVersion.VERSION_16
+  sourceCompatibility = JavaVersion.VERSION_17
+  targetCompatibility = JavaVersion.VERSION_17
 }
 
 runtime {
@@ -47,19 +47,19 @@ runtime {
   }
 
   targetPlatform("linux") {
-    jdkHome = jdkDownload("https://github.com/AdoptOpenJDK/openjdk16-binaries/releases/download/jdk-16.0.1%2B9_openj9-0.26.0/OpenJDK16U-jdk_x64_linux_openj9_16.0.1_9_openj9-0.26.0.tar.gz", {
+    jdkHome = jdkDownload("https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.4.1%2B1/OpenJDK17U-jdk_x64_linux_hotspot_17.0.4.1_1.tar.gz", {
       archiveExtension="tar.gz"
     })
   }
 
   targetPlatform("win") {
-    jdkHome = jdkDownload("https://github.com/AdoptOpenJDK/openjdk16-binaries/releases/download/jdk-16.0.1%2B9_openj9-0.26.0/OpenJDK16U-jdk_x64_windows_openj9_16.0.1_9_openj9-0.26.0.zip", {
+    jdkHome = jdkDownload("https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.4.1%2B1/OpenJDK17U-jdk_x64_windows_hotspot_17.0.4.1_1.zip", {
       archiveExtension="zip"
     })
   }
 
   targetPlatform("mac") {
-    jdkHome = jdkDownload("https://github.com/AdoptOpenJDK/openjdk16-binaries/releases/download/jdk-16.0.1%2B9_openj9-0.26.0/OpenJDK16U-jdk_x64_mac_openj9_16.0.1_9_openj9-0.26.0.tar.gz", {
+    jdkHome = jdkDownload("https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.4.1%2B1/OpenJDK17U-jdk_x64_mac_hotspot_17.0.4.1_1.tar.gz", {
       archiveExtension="tar.gz"
     })
   }
