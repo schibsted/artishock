@@ -21,9 +21,6 @@ import io.airlift.airline.model.OptionMetadata;
 
 public class ArtishockCli {
   public static void main(String[] args) {
-    java.lang.Object.class.getModule().addOpens(java.lang.Object.class.getPackageName(), org.codehaus.groovy.reflection.CachedClass.class.getModule());
-    org.codehaus.groovy.reflection.CachedClass.class.getModule().addReads(java.lang.Object.class.getModule());
-
     var builder = Cli.<Runnable>builder("artishock")
         .withDefaultCommand(Commands.CustomHelp.class);
 
