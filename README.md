@@ -68,7 +68,7 @@ artishock repo-stats --package-system maven --repo small-remote-cache
 Use `--verbose` for verbose output and `--stacktrace` to get the full stack trace rather than just the message.
 
 ## Developer notes
-*Prerequisite: [OpenJDK7](https://adoptium.net/)*
+*Prerequisite: [OpenJDK 17](https://adoptium.net/)*
 
 Generate runtime images `build/image/artishock-{linux,mac,win}/`
 ```
