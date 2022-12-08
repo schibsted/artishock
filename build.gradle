@@ -48,6 +48,7 @@ tasks.register('uberJar', Jar) {
 
   manifest {
     attributes 'Main-Class': 'com.schibsted.security.artishock.ArtishockCli'
+    attributes 'Multi-Release': 'true'
   }
 }
 
