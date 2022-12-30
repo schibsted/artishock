@@ -10,7 +10,6 @@ plugins {
 
 repositories {
   mavenCentral()
-  jcenter()
 }
 
 mainClassName = 'com.schibsted.security.artishock.ArtishockCli'
@@ -26,7 +25,7 @@ dependencies {
   implementation("com.squareup.okhttp3:okhttp:4.9.0")
   implementation("io.airlift:airline:0.8")
 
-  implementation("org.jfrog.artifactory.client:artifactory-java-client-services:2.8.6")
+  implementation("org.jfrog.artifactory.client:artifactory-java-client-services:2.13.0")
   implementation("org.codehaus.groovy:groovy:3.0.6") // Force upgrade in artifactory client
 }
 
