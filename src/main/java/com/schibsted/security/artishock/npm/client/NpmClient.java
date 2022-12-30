@@ -14,18 +14,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class NpmClient {
   private static final Logger log = LogManager.getLogger();
 
-  private final ObjectMapper mapper;
-
   public NpmClient() {
-    mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
   }
 
   public List<NpmPackageIdentifier> getPackageList(List<NpmPackageIdentifier> packages, ConnectionInfo connectionInfo) {

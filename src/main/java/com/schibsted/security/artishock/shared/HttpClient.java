@@ -73,7 +73,11 @@ public class HttpClient {
       if (!response.isSuccessful()) {
         throw new RuntimeException("Download not successful from " + request.url());
       }
-      return response.body().string();
+      var body = response.body();
+      if (body == null) {
+        throw new RuntimeException("Failed to get body from " + request.url());
+      }
+      return body.string();
     } catch (IOException e) {
       throw new RuntimeException("Failed to get body from " + request.url());
     }

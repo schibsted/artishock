@@ -4,8 +4,6 @@
 
 package com.schibsted.security.artishock.shared;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
 public class ConnectionInfo {

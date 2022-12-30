@@ -76,7 +76,7 @@ public class SimpleCache {
     var cacheDirectory = path.toFile();
     if (!cacheDirectory.exists()) {
       if (!cacheDirectory.mkdir()) {
-        throw new RuntimeException(String.format("Failed to create '%s'", cacheDirectory.toString()));
+        throw new RuntimeException(String.format("Failed to create '%s'", cacheDirectory));
       }
     }
   }
