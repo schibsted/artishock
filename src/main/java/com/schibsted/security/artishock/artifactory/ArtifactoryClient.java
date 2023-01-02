@@ -212,16 +212,12 @@ public class ArtifactoryClient {
   }
 
   List<String> archiveExtensions(String packageSystem) {
-    switch (packageSystem.toLowerCase(Locale.ENGLISH)) {
-      case "maven":
-        return List.of(".jar", ".war", ".rar", ".ear", ".sar", ".apk", ".aar", ".par", ".kar");
-      case "npm":
-        return List.of(".tgz");
-      case "pypi":
-        return List.of(".tar.gz");
-      default:
-        throw new RuntimeException("Unknown package system " + packageSystem);
-    }
+    return switch (packageSystem.toLowerCase(Locale.ENGLISH)) {
+      case "maven" -> List.of(".jar", ".war", ".rar", ".ear", ".sar", ".apk", ".aar", ".par", ".kar");
+      case "npm" -> List.of(".tgz");
+      case "pypi" -> List.of(".tar.gz");
+      default -> throw new RuntimeException("Unknown package system " + packageSystem);
+    };
   }
 
   public Stats recursiveStats(String repository, String path, List<String> archiveExtensions) {

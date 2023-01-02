@@ -5,8 +5,8 @@
 package com.schibsted.security.artishock.npm;
 
 import com.schibsted.security.artishock.artifactory.ArtifactoryClient;
-import com.schibsted.security.artishock.npm.client.NpmClient;
 import com.schibsted.security.artishock.config.Config;
+import com.schibsted.security.artishock.npm.client.NpmClient;
 import com.schibsted.security.artishock.shared.ConnectionInfo;
 import com.schibsted.security.artishock.shared.FileReader;
 import com.schibsted.security.artishock.shared.Intersection;
@@ -15,12 +15,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 public class Npm {
-  private static final Logger log = LogManager.getLogger();
-
   private final ArtifactoryClient artifactoryClient;
   private final Config config;
 

@@ -52,7 +52,6 @@ public class Stats {
   public Stats merge(Stats other) {
     var extensions = Stream.of(this.extensions, other.getExtensions())
         .flatMap(Collection::stream)
-        .distinct()
         .collect(Collectors.toSet());
 
     return new Stats(this.downloadCount + other.getDownloadCount(),

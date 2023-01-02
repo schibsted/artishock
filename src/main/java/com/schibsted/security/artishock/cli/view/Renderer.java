@@ -28,7 +28,7 @@ public class Renderer {
       case TEXT:
         break;
       default:
-        throw new IllegalArgumentException(String.format("Unexpected output format '%s', reverting to text", outputFormat.toString()));
+        throw new IllegalArgumentException(String.format("Unexpected output format '%s', reverting to text", outputFormat));
     }
   }
 
@@ -50,14 +50,11 @@ public class Renderer {
   }
 
   private <T extends Collection<?>> String arrayOutput(T object) {
-    switch (outputFormat) {
-      case JSON:
-        return serializeToJSON(object) + "\n";
-      case TEXT:
-        return Joiner.on("\n").join(object.stream().map(Object::toString).collect(Collectors.toList())) + "\n";
-      default:
-        throw new RuntimeException("Unexpected output format");
-    }
+    return switch (outputFormat) {
+      case JSON -> serializeToJSON(object) + "\n";
+      case TEXT -> Joiner.on("\n").join(object.stream().map(Object::toString).collect(Collectors.toList())) + "\n";
+      default -> throw new RuntimeException("Unexpected output format");
+    };
   }
 
   public <T> String singleOutput(T object) {

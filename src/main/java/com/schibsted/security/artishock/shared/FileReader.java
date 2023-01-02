@@ -13,9 +13,9 @@ public class FileReader {
   public static List<String> linesFromFile(String location) {
     var path = Path.of(location);
     try {
-      return Files.readAllLines(Path.of(location));
+      return Files.readAllLines(path);
     } catch (IOException e) {
-      throw new RuntimeException(String.format("Failed to read file at '%s'", path.toString()), e);
+      throw new RuntimeException(String.format("Failed to read file at '%s'", path), e);
     }
   }
 }
