@@ -52,7 +52,7 @@ public class HttpClient {
         if (response.code() == 429) {
           retry++;
           try {
-            Thread.sleep(2000);
+            Thread.sleep(5000);
           } catch (InterruptedException ignore) {
           }
         } else {
@@ -63,9 +63,9 @@ public class HttpClient {
       } catch (IOException e) {
         throw new RuntimeException("Failed to fetch " + request.url(), e);
       }
-    } while (retry < 5);
+    } while (retry < 10);
 
-    throw new RuntimeException("more than 5 retries for " + request.url());
+    throw new RuntimeException("more than 10 retries for " + request.url());
   }
 
   private static void throwIfUnauthorized(Response response) {
