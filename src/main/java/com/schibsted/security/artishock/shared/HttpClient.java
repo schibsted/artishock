@@ -42,34 +42,43 @@ public class HttpClient {
     return requestBuilder.build();
   }
 
-  public static Response execute(Request request) {
+  private static Response execute(Request request) {
     log.info(() -> "Fetching " + request.url());
 
-    try {
-      var response = client.newCall(request).execute();
-      throwIfUnauthorized(response);
+    int retry = 0;
+    do {
+      try {
+        var response = client.newCall(request).execute();
+        if (response.code() == 429) {
+          retry++;
+          try {
+            Thread.sleep(2000);
+          } catch (InterruptedException ignore) {
+          }
+        } else {
+          throwIfUnauthorized(response);
 
-      return response;
-    } catch (IOException e) {
-      throw new RuntimeException("Failed to fetch " + request.url(), e);
-    }
+          return response;
+        }
+      } catch (IOException e) {
+        throw new RuntimeException("Failed to fetch " + request.url(), e);
+      }
+    } while (retry < 5);
+
+    throw new RuntimeException("more than 5 retries for " + request.url());
   }
 
-  public static void throwIfUnauthorized(Response response) {
+  private static void throwIfUnauthorized(Response response) {
     if (response.code() == 401) {
       response.close();
       throw new RuntimeException("401 Unauthorized " + response.request().url());
     }
-    if (response.code() == 429) {
-      response.close();
-      throw new RuntimeException("429 Too many requests " + response.request().url());
-    }
   }
 
   public static String fetch(ConnectionInfo connectionInfo, String path) {
-    var request = HttpClient.prepareRequest(connectionInfo, path);
+    var request = prepareRequest(connectionInfo, path);
 
-    try (var response = HttpClient.execute(request)) {
+    try (var response = execute(request)) {
       if (!response.isSuccessful()) {
         throw new RuntimeException("Download not successful from " + request.url());
       }
@@ -87,9 +96,9 @@ public class HttpClient {
    * Returns true if response is 200, false if response is 404, throws otherwise
    */
   public static boolean exists(ConnectionInfo connectionInfo, String path) {
-    var request = HttpClient.prepareRequest(connectionInfo, path);
+    var request = prepareRequest(connectionInfo, path);
 
-    try (var response = HttpClient.execute(request)) {
+    try (var response = execute(request)) {
       if (response.code() == 200) {
         return true;
       } else if (response.code() == 404) {
