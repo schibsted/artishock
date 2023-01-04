@@ -25,8 +25,7 @@ public class Artishock {
   private final ArtifactoryClient artifactoryClient;
 
   public Artishock() {
-    var configResolver = new ConfigResolver();
-    var config = configResolver.resolveConfig();
+    var config = ConfigResolver.resolveConfig();
     this.artifactoryClient = new ArtifactoryClient(config);
     this.npm = new Npm(config, artifactoryClient);
     this.pypi = new Pypi(config, artifactoryClient);
@@ -57,33 +56,37 @@ public class Artishock {
   public List<Object> excludeCandidates(String packageSystem, String local, String trusted, String excluded) {
     var system = getPackageSystemOrThrow(packageSystem, List.of(PackageSystem.NPM, PackageSystem.PYPI));
 
-    if (system.equals(PackageSystem.NPM)) {
-      return npm.excludeCandidates(local, Optional.ofNullable(trusted), Optional.ofNullable(excluded)).stream()
-          .map(NpmPackageIdentifier::new)
-          .collect(Collectors.toList());
-    } else if (system.equals(PackageSystem.PYPI)) {
-      return pypi.excludeCandidates(local, Optional.ofNullable(trusted), Optional.ofNullable(excluded)).stream()
-          .map(PyPiPackageIdentifier::new)
-          .collect(Collectors.toList());
+    switch (system) {
+      case NPM -> {
+        return npm.excludeCandidates(local, Optional.ofNullable(trusted), Optional.ofNullable(excluded)).stream()
+            .map(NpmPackageIdentifier::new)
+            .collect(Collectors.toList());
+      }
+      case PYPI -> {
+        return pypi.excludeCandidates(local, Optional.ofNullable(trusted), Optional.ofNullable(excluded)).stream()
+            .map(PyPiPackageIdentifier::new)
+            .collect(Collectors.toList());
+      }
+      default -> throw new RuntimeException("Implementation bug");
     }
-
-    throw new RuntimeException("Implementation bug");
   }
 
   public List<Object> cached(String packageSystem, String local, String remote) {
     var system = getPackageSystemOrThrow(packageSystem, List.of(PackageSystem.NPM, PackageSystem.PYPI));
 
-    if (system.equals(PackageSystem.NPM)) {
-      return npm.cached(local, remote).stream()
-          .map(NpmPackageIdentifier::new)
-          .collect(Collectors.toList());
-    } else if (system.equals(PackageSystem.PYPI)) {
-      return pypi.cached(local, remote).stream()
-          .map(PyPiPackageIdentifier::new)
-          .collect(Collectors.toList());
+    switch (system) {
+      case NPM -> {
+        return npm.cached(local, remote).stream()
+            .map(NpmPackageIdentifier::new)
+            .collect(Collectors.toList());
+      }
+      case PYPI -> {
+        return pypi.cached(local, remote).stream()
+            .map(PyPiPackageIdentifier::new)
+            .collect(Collectors.toList());
+      }
+      default -> throw new RuntimeException("Implementation bug");
     }
-
-    throw new RuntimeException("Implementation bug");
   }
 
   public List<Object> inferredExclude(String packageSystem, String local, String remote, boolean enableUpstream) {
@@ -91,35 +94,39 @@ public class Artishock {
 
     var system = getPackageSystemOrThrow(packageSystem, List.of(PackageSystem.NPM, PackageSystem.PYPI));
 
-    if (system.equals(PackageSystem.NPM)) {
-      return npm.inferredExclude(local, remote).stream()
-          .map(NpmPackageIdentifier::new)
-          .collect(Collectors.toList());
-    } else if (system.equals(PackageSystem.PYPI)){
-      return pypi.inferredExclude(local, remote).stream()
-          .map(PyPiPackageIdentifier::new)
-          .collect(Collectors.toList());
+    switch (system) {
+      case NPM -> {
+        return npm.inferredExclude(local, remote).stream()
+            .map(NpmPackageIdentifier::new)
+            .collect(Collectors.toList());
+      }
+      case PYPI -> {
+        return pypi.inferredExclude(local, remote).stream()
+            .map(PyPiPackageIdentifier::new)
+            .collect(Collectors.toList());
+      }
+      default -> throw new RuntimeException("Implementation bug");
     }
-
-    throw new RuntimeException("Implementation bug");
   }
 
-  public List<Object> notClaimed(String packageSystem, String local, boolean enableUpstream) {
+  public List<Object> notClaimed(String packageSystem, String local, String excluded, boolean enableUpstream) {
     verifyEnableUpstreamOrThrow(enableUpstream);
 
     var system = getPackageSystemOrThrow(packageSystem, List.of(PackageSystem.NPM, PackageSystem.PYPI));
 
-    if (system.equals(PackageSystem.NPM)) {
-      return npm.notClaimed(local).stream()
-          .map(NpmPackageOrScope::new)
-          .collect(Collectors.toList());
-    } else if (system.equals(PackageSystem.PYPI)) {
-      return pypi.notClaimed(local).stream()
-          .map(PyPiPackageIdentifier::new)
-          .collect(Collectors.toList());
+    switch (system) {
+      case NPM -> {
+        return npm.notClaimed(local, Optional.ofNullable(excluded)).stream()
+            .map(NpmPackageOrScope::new)
+            .collect(Collectors.toList());
+      }
+      case PYPI -> {
+        return pypi.notClaimed(local, Optional.ofNullable(excluded)).stream()
+            .map(PyPiPackageIdentifier::new)
+            .collect(Collectors.toList());
+      }
+      default -> throw new RuntimeException("Implementation bug");
     }
-
-    throw new RuntimeException("Implementation bug");
   }
 
   void throwIfNotSupportedOptional(String packageSystem, List<PackageSystem> supported) {

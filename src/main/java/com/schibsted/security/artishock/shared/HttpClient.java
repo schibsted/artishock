@@ -63,9 +63,9 @@ public class HttpClient {
       } catch (IOException e) {
         throw new RuntimeException("Failed to fetch " + request.url(), e);
       }
-    } while (retry < 10);
+    } while (retry < 20);
 
-    throw new RuntimeException("more than 10 retries for " + request.url());
+    throw new RuntimeException("more than 20 retries for " + request.url());
   }
 
   private static void throwIfUnauthorized(Response response) {

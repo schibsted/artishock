@@ -51,7 +51,7 @@ public class Commands {
       Package p = getClass().getPackage();
       String version = p.getImplementationVersion();
 
-      System.out.println(String.format("artishock %s", version));
+      System.out.printf("artishock %s%n", version);
     }
   }
 
@@ -226,6 +226,9 @@ public class Commands {
     @io.airlift.airline.Option(name = LOCAL_NAME, description = LOCAL_DESCRIPTION, required = true)
     public String local;
 
+    @io.airlift.airline.Option(name = "--excluded", description = "File containing excluded packages")
+    public String excluded;
+
     @io.airlift.airline.Option(name = QUERY_UPSTREAM_NAME, description = QUERY_UPSTREAM_DESCRIPTION, required = false)
     boolean queryUpstream;
 
@@ -233,7 +236,7 @@ public class Commands {
     public void run() {
       verboseAndHelp("not-claimed");
 
-      renderer().render(confused().notClaimed(packageSystem, local, queryUpstream));
+      renderer().render(confused().notClaimed(packageSystem, local, excluded, queryUpstream));
     }
   }
 }

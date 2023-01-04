@@ -56,8 +56,13 @@ public class Pypi {
     return upstreamPackages;
   }
 
-  public List<PyPiPackageIdentifier> notClaimed(String local) {
+  public List<PyPiPackageIdentifier> notClaimed(String local, Optional<String> excluded) {
     var localPackages = pyPiClient.getAllPyPiPackageIdentifierFromIndex(local);
+
+    var exclude = new ArrayList<PyPiPackageIdentifier>();
+    excluded.ifPresent(s -> exclude.addAll(fromFile(s)));
+
+    localPackages.removeAll(exclude);
 
     var upstreamPackages = checkUpstream(localPackages);
     localPackages.removeAll(upstreamPackages);
