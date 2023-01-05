@@ -10,7 +10,6 @@ import com.schibsted.security.artishock.npm.client.NpmClient;
 import com.schibsted.security.artishock.shared.ConnectionInfo;
 import com.schibsted.security.artishock.shared.FileReader;
 import com.schibsted.security.artishock.shared.Intersection;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -65,8 +64,12 @@ public class Npm {
     return upstreamPackages;
   }
 
-  public List<NpmPackageOrScope> notClaimed(String local) {
-    var localPackages = new ArrayList<>(artifactoryClient.getAllNpmPackageIdentifiersForLocal(local));
+  public List<NpmPackageOrScope> notClaimed(String local, Optional<String> excluded) {
+    var localPackages = artifactoryClient.getAllNpmPackageIdentifiersForLocal(local);
+
+    if (excluded.isPresent()) {
+      localPackages = filterOutPackageOrScope(localPackages, packageOrScopes(excluded.get()));
+    }
 
     var localPackagesWithoutScope = packagesWithoutScope(localPackages);
 

@@ -19,6 +19,7 @@ public class Commands {
   private static final String PACKAGE_SYSTEM_NAME = "--package-system";
   private static final String LOCAL_NAME = "--local";
   private static final String LOCAL_DESCRIPTION = "Name of an Artifactory repo of type local";
+  private static final String EXCLUDED_DESCRIPTION = "File containing excluded packages";
   private static final String REMOTE_NAME = "--remote";
   private static final String REPO_DESCRIPTION = "Name of Artifactory repo";
   private static final String REPO_NAME = "--repo";
@@ -51,7 +52,7 @@ public class Commands {
       Package p = getClass().getPackage();
       String version = p.getImplementationVersion();
 
-      System.out.println(String.format("artishock %s", version));
+      System.out.printf("artishock %s%n", version);
     }
   }
 
@@ -166,7 +167,7 @@ public class Commands {
     @io.airlift.airline.Option(name = "--trusted", description = "File containing trusted packages")
     public String trusted;
 
-    @io.airlift.airline.Option(name = "--excluded", description = "File containing excluded packages")
+    @io.airlift.airline.Option(name = "--excluded", description = EXCLUDED_DESCRIPTION)
     public String excluded;
 
     @Override
@@ -207,7 +208,7 @@ public class Commands {
     @io.airlift.airline.Option(name = REMOTE_NAME, description = REMOTE_DESCRIPTION, required = true)
     public String remote;
 
-    @io.airlift.airline.Option(name = QUERY_UPSTREAM_NAME, description = QUERY_UPSTREAM_DESCRIPTION, required = false)
+    @io.airlift.airline.Option(name = QUERY_UPSTREAM_NAME, description = QUERY_UPSTREAM_DESCRIPTION)
     boolean queryUpstream;
 
     @Override
@@ -226,14 +227,17 @@ public class Commands {
     @io.airlift.airline.Option(name = LOCAL_NAME, description = LOCAL_DESCRIPTION, required = true)
     public String local;
 
-    @io.airlift.airline.Option(name = QUERY_UPSTREAM_NAME, description = QUERY_UPSTREAM_DESCRIPTION, required = false)
+    @io.airlift.airline.Option(name = "--excluded", description = EXCLUDED_DESCRIPTION)
+    public String excluded;
+
+    @io.airlift.airline.Option(name = QUERY_UPSTREAM_NAME, description = QUERY_UPSTREAM_DESCRIPTION)
     boolean queryUpstream;
 
     @Override
     public void run() {
       verboseAndHelp("not-claimed");
 
-      renderer().render(confused().notClaimed(packageSystem, local, queryUpstream));
+      renderer().render(confused().notClaimed(packageSystem, local, excluded, queryUpstream));
     }
   }
 }
