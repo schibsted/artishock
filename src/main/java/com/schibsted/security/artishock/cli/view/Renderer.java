@@ -52,7 +52,14 @@ public class Renderer {
   private <T extends Collection<?>> String arrayOutput(T object) {
     return switch (outputFormat) {
       case JSON -> serializeToJSON(object) + "\n";
-      case TEXT -> Joiner.on("\n").join(object.stream().map(Object::toString).collect(Collectors.toList())) + "\n";
+      case TEXT -> {
+        String joined = Joiner.on("\n").join(object.stream().map(Object::toString).collect(Collectors.toList()));
+        if (joined.isEmpty()) {
+          yield joined;
+        } else {
+          yield joined + "\n";
+        }
+      }
       default -> throw new RuntimeException("Unexpected output format");
     };
   }
