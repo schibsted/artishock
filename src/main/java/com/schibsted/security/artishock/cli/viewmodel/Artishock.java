@@ -53,7 +53,7 @@ public class Artishock {
     return new ArtifactoryRepositoryStats(packageName, artifactoryClient.packageStats(repoName, packageSystem, identifier));
   }
 
-  public List<Object> excludeCandidates(String packageSystem, String local, String trusted, String excluded) {
+  public List<Object> excludeCandidates(String packageSystem, String local, String trusted, String excluded, int retries, long pauseSeconds) {
     var system = getPackageSystemOrThrow(packageSystem, List.of(PackageSystem.NPM, PackageSystem.PYPI));
 
     switch (system) {
@@ -63,7 +63,7 @@ public class Artishock {
             .collect(Collectors.toList());
       }
       case PYPI -> {
-        return pypi.excludeCandidates(local, Optional.ofNullable(trusted), Optional.ofNullable(excluded)).stream()
+        return pypi.excludeCandidates(local, Optional.ofNullable(trusted), Optional.ofNullable(excluded), retries, pauseSeconds).stream()
             .map(PyPiPackageIdentifier::new)
             .collect(Collectors.toList());
       }
@@ -71,7 +71,7 @@ public class Artishock {
     }
   }
 
-  public List<Object> cached(String packageSystem, String local, String remote) {
+  public List<Object> cached(String packageSystem, String local, String remote, int retries, long pauseSeconds) {
     var system = getPackageSystemOrThrow(packageSystem, List.of(PackageSystem.NPM, PackageSystem.PYPI));
 
     switch (system) {
@@ -81,7 +81,7 @@ public class Artishock {
             .collect(Collectors.toList());
       }
       case PYPI -> {
-        return pypi.cached(local, remote).stream()
+        return pypi.cached(local, remote, retries, pauseSeconds).stream()
             .map(PyPiPackageIdentifier::new)
             .collect(Collectors.toList());
       }
@@ -89,19 +89,19 @@ public class Artishock {
     }
   }
 
-  public List<Object> inferredExclude(String packageSystem, String local, String remote, boolean enableUpstream) {
+  public List<Object> inferredExclude(String packageSystem, String local, String remote, boolean enableUpstream, int retries, long pauseSeconds) {
     verifyEnableUpstreamOrThrow(enableUpstream);
 
     var system = getPackageSystemOrThrow(packageSystem, List.of(PackageSystem.NPM, PackageSystem.PYPI));
 
     switch (system) {
       case NPM -> {
-        return npm.inferredExclude(local, remote).stream()
+        return npm.inferredExclude(local, remote, retries, pauseSeconds).stream()
             .map(NpmPackageIdentifier::new)
             .collect(Collectors.toList());
       }
       case PYPI -> {
-        return pypi.inferredExclude(local, remote).stream()
+        return pypi.inferredExclude(local, remote, retries, pauseSeconds).stream()
             .map(PyPiPackageIdentifier::new)
             .collect(Collectors.toList());
       }
@@ -109,19 +109,19 @@ public class Artishock {
     }
   }
 
-  public List<Object> notClaimed(String packageSystem, String local, String excluded, boolean enableUpstream) {
+  public List<Object> notClaimed(String packageSystem, String local, String excluded, boolean enableUpstream, int retries, long pauseSeconds) {
     verifyEnableUpstreamOrThrow(enableUpstream);
 
     var system = getPackageSystemOrThrow(packageSystem, List.of(PackageSystem.NPM, PackageSystem.PYPI));
 
     switch (system) {
       case NPM -> {
-        return npm.notClaimed(local, Optional.ofNullable(excluded)).stream()
+        return npm.notClaimed(local, Optional.ofNullable(excluded), retries, pauseSeconds).stream()
             .map(NpmPackageOrScope::new)
             .collect(Collectors.toList());
       }
       case PYPI -> {
-        return pypi.notClaimed(local, Optional.ofNullable(excluded)).stream()
+        return pypi.notClaimed(local, Optional.ofNullable(excluded), retries, pauseSeconds).stream()
             .map(PyPiPackageIdentifier::new)
             .collect(Collectors.toList());
       }

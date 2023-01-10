@@ -31,11 +31,11 @@ public class PyPiClient {
     return new ConnectionInfo("https://pypi.org");
   }
 
-  public List<PyPiPackageIdentifier> getAllPyPiPackageIdentifierFromIndex(String repositoryName) {
+  public List<PyPiPackageIdentifier> getAllPyPiPackageIdentifierFromIndex(String repositoryName, int retries, long pauseSeconds) {
     log.info(() -> "Fetching PyPi package from index in " + repositoryName);
 
     var raw = getPackagesFromIndex(new ConnectionInfo(config.getArtifactoryUrl() + "/api/pypi/" + repositoryName,
-        config.getArtifactoryUsername(), config.getArtifactoryPassword()), "/simple/");
+        config.getArtifactoryUsername(), config.getArtifactoryPassword()), "/simple/", retries, pauseSeconds);
 
     var preprocessed = raw.replaceAll("\".*\"", "\"\"")
         .replace("\n", "")
@@ -58,8 +58,8 @@ public class PyPiClient {
     }
   }
 
-  public boolean packageExistsCached(ConnectionInfo connectionInfo, PyPiPackageIdentifier packageIdentifier) {
-    Supplier<String> f = () -> Boolean.toString(packageExists(connectionInfo, packageIdentifier));
+  public boolean packageExistsCached(ConnectionInfo connectionInfo, PyPiPackageIdentifier packageIdentifier, int retries, long pauseSeconds) {
+    Supplier<String> f = () -> Boolean.toString(packageExists(connectionInfo, packageIdentifier, retries, pauseSeconds));
     var result = SimpleCache.getFromCacheOrExecute(connectionInfo, packageIdentifier.toString(), CacheCategory.PACKAGE_EXISTS, f);
 
     if (result.equals("true")) {
@@ -71,11 +71,11 @@ public class PyPiClient {
     }
   }
 
-  public boolean packageExists(ConnectionInfo connectionInfo, PyPiPackageIdentifier packageName) {
-    return HttpClient.exists(connectionInfo, "/simple/" + packageName.getPackageName() + "/");
+  public boolean packageExists(ConnectionInfo connectionInfo, PyPiPackageIdentifier packageName, int retries, long pauseSeconds) {
+    return HttpClient.exists(connectionInfo, "/simple/" + packageName.getPackageName() + "/", retries, pauseSeconds);
   }
 
-  String getPackagesFromIndex(ConnectionInfo connectionInfo, String path) {
-    return HttpClient.fetch(connectionInfo, path);
+  String getPackagesFromIndex(ConnectionInfo connectionInfo, String path, int retries, long pauseSeconds) {
+    return HttpClient.fetch(connectionInfo, path, retries, pauseSeconds);
   }
 }

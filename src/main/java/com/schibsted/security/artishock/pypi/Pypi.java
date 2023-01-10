@@ -26,8 +26,8 @@ public class Pypi {
     this.config = config;
   }
 
-  public List<PyPiPackageIdentifier> excludeCandidates(String local, Optional<String> trusted, Optional<String> excluded) {
-    var candidates = pyPiClient.getAllPyPiPackageIdentifierFromIndex(local);
+  public List<PyPiPackageIdentifier> excludeCandidates(String local, Optional<String> trusted, Optional<String> excluded, int retries, long pauseSeconds) {
+    var candidates = pyPiClient.getAllPyPiPackageIdentifierFromIndex(local, retries, pauseSeconds);
 
     var exclude = new ArrayList<PyPiPackageIdentifier>();
     trusted.ifPresent(s -> exclude.addAll(fromFile(s)));
@@ -38,67 +38,67 @@ public class Pypi {
     return candidates;
   }
 
-  public List<PyPiPackageIdentifier> cached(String local, String remote) {
-    var localPackages = pyPiClient.getAllPyPiPackageIdentifierFromIndex(local);
+  public List<PyPiPackageIdentifier> cached(String local, String remote, int retries, long pauseSeconds) {
+    var localPackages = pyPiClient.getAllPyPiPackageIdentifierFromIndex(local, retries, pauseSeconds);
     var remoteCached = artifactoryClient.getAllPyPiPackageIdentifiersFromPyPiDir(remote + "-cache");
 
     return Intersection.cacheIntersection(localPackages, remoteCached);
   }
 
-  public List<PyPiPackageIdentifier> inferredExclude(String local, String remote) {
-    var localPackages = pyPiClient.getAllPyPiPackageIdentifierFromIndex(local);
+  public List<PyPiPackageIdentifier> inferredExclude(String local, String remote, int retries, long pauseSeconds) {
+    var localPackages = pyPiClient.getAllPyPiPackageIdentifierFromIndex(local, retries, pauseSeconds);
 
-    var upstreamPackages = checkUpstream(localPackages);
-    var remotePackages = checkLocal(remote, localPackages);
+    var upstreamPackages = checkUpstream(localPackages, retries, pauseSeconds);
+    var remotePackages = checkLocal(remote, localPackages, retries, pauseSeconds);
 
     upstreamPackages.removeAll(remotePackages);
 
     return upstreamPackages;
   }
 
-  public List<PyPiPackageIdentifier> notClaimed(String local, Optional<String> excluded) {
-    var localPackages = pyPiClient.getAllPyPiPackageIdentifierFromIndex(local);
+  public List<PyPiPackageIdentifier> notClaimed(String local, Optional<String> excluded, int retries, long pauseSeconds) {
+    var localPackages = pyPiClient.getAllPyPiPackageIdentifierFromIndex(local, retries, pauseSeconds);
 
     var exclude = new ArrayList<PyPiPackageIdentifier>();
     excluded.ifPresent(s -> exclude.addAll(fromFile(s)));
 
     localPackages.removeAll(exclude);
 
-    var upstreamPackages = checkUpstream(localPackages);
+    var upstreamPackages = checkUpstream(localPackages, retries, pauseSeconds);
     localPackages.removeAll(upstreamPackages);
 
     return localPackages;
   }
 
-  List<PyPiPackageIdentifier> checkUpstream(List<PyPiPackageIdentifier> local) {
+  List<PyPiPackageIdentifier> checkUpstream(List<PyPiPackageIdentifier> local, int retries, long pauseSeconds) {
     var result = new ArrayList<PyPiPackageIdentifier>();
     for (var l : local) {
-      if (existsUpstream(l)) {
+      if (existsUpstream(l, retries, pauseSeconds)) {
         result.add(l);
       }
     }
     return result;
   }
 
-  List<PyPiPackageIdentifier> checkLocal(String repoName, List<PyPiPackageIdentifier> local) {
+  List<PyPiPackageIdentifier> checkLocal(String repoName, List<PyPiPackageIdentifier> local, int retries, long pauseSeconds) {
     var result = new ArrayList<PyPiPackageIdentifier>();
     for (var l : local) {
-      if (existsInArtifactory(repoName, l)) {
+      if (existsInArtifactory(repoName, l, retries, pauseSeconds)) {
         result.add(l);
       }
     }
     return result;
   }
 
-  boolean existsUpstream(PyPiPackageIdentifier packageIdentifier) {
-    return pyPiClient.packageExistsCached(pyPiClient.upstream(), packageIdentifier);
+  boolean existsUpstream(PyPiPackageIdentifier packageIdentifier, int retries, long pauseSeconds) {
+    return pyPiClient.packageExistsCached(pyPiClient.upstream(), packageIdentifier, retries, pauseSeconds);
   }
 
-  boolean existsInArtifactory(String repo, PyPiPackageIdentifier packageIdentifier) {
+  boolean existsInArtifactory(String repo, PyPiPackageIdentifier packageIdentifier, int retries, long pauseSeconds) {
     return pyPiClient.packageExistsCached(new ConnectionInfo(config.getArtifactoryUrl() + "/api/pypi/" + repo,
             config.getArtifactoryUsername(),
             config.getArtifactoryPassword()),
-        packageIdentifier);
+        packageIdentifier, retries, pauseSeconds);
   }
 
   List<PyPiPackageIdentifier> fromFile(String location) {

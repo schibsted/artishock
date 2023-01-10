@@ -42,7 +42,7 @@ public class HttpClient {
     return requestBuilder.build();
   }
 
-  private static Response execute(Request request) {
+  private static Response execute(Request request, int retries, long pauseSeconds) {
     log.info(() -> "Fetching " + request.url());
 
     int retry = 0;
@@ -52,7 +52,7 @@ public class HttpClient {
         if (response.code() == 429) {
           retry++;
           try {
-            Thread.sleep(5000);
+            Thread.sleep(pauseSeconds * 1000);
           } catch (InterruptedException ignore) {
           }
         } else {
@@ -63,9 +63,9 @@ public class HttpClient {
       } catch (IOException e) {
         throw new RuntimeException("Failed to fetch " + request.url(), e);
       }
-    } while (retry < 20);
+    } while (retry < retries);
 
-    throw new RuntimeException("more than 20 retries for " + request.url());
+    throw new RuntimeException("more than " + retries + " retries for " + request.url());
   }
 
   private static void throwIfUnauthorized(Response response) {
@@ -75,10 +75,10 @@ public class HttpClient {
     }
   }
 
-  public static String fetch(ConnectionInfo connectionInfo, String path) {
+  public static String fetch(ConnectionInfo connectionInfo, String path, int retries, long pauseSeconds) {
     var request = prepareRequest(connectionInfo, path);
 
-    try (var response = execute(request)) {
+    try (var response = execute(request, retries, pauseSeconds)) {
       if (!response.isSuccessful()) {
         throw new RuntimeException("Download not successful from " + request.url());
       }
@@ -95,10 +95,10 @@ public class HttpClient {
   /**
    * Returns true if response is 200, false if response is 404, throws otherwise
    */
-  public static boolean exists(ConnectionInfo connectionInfo, String path) {
+  public static boolean exists(ConnectionInfo connectionInfo, String path, int retries, long pauseSeconds) {
     var request = prepareRequest(connectionInfo, path);
 
-    try (var response = execute(request)) {
+    try (var response = execute(request, retries, pauseSeconds)) {
       if (response.code() == 200) {
         return true;
       } else if (response.code() == 404) {

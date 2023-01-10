@@ -23,15 +23,15 @@ public class NpmClient {
   public NpmClient() {
   }
 
-  public List<NpmPackageIdentifier> getPackageList(List<NpmPackageIdentifier> packages, ConnectionInfo connectionInfo) {
+  public List<NpmPackageIdentifier> getPackageList(List<NpmPackageIdentifier> packages, ConnectionInfo connectionInfo, int retries, long pauseSeconds) {
     log.info(() -> "Fetching select packages from " + connectionInfo.getPrefix());
-    return checkUpstream(packages, connectionInfo);
+    return checkUpstream(packages, connectionInfo, retries, pauseSeconds);
   }
 
-  public List<NpmPackageOrScope> notClaimedOrg(List<String> scopes) {
+  public List<NpmPackageOrScope> notClaimedOrg(List<String> scopes, int retries, long pauseSeconds) {
     var result = new ArrayList<NpmPackageOrScope>();
     for (var scope : scopes) {
-      if (!claimedOrgCached(scope)) {
+      if (!claimedOrgCached(scope, retries, pauseSeconds)) {
         result.add(new NpmPackageOrScope(Optional.of(scope), Optional.empty()));
       }
     }
@@ -39,9 +39,9 @@ public class NpmClient {
     return result;
   }
 
-  boolean claimedOrgCached(String scope) {
+  boolean claimedOrgCached(String scope, int retries, long pauseSeconds) {
     var connectionInfo = new ConnectionInfo("https://www.npmjs.com");
-    Supplier<String> f = () -> Boolean.toString(fetchOrgIsClaimed(connectionInfo, scope));
+    Supplier<String> f = () -> Boolean.toString(fetchOrgIsClaimed(connectionInfo, scope, retries, pauseSeconds));
     var result = SimpleCache.getFromCacheOrExecute(connectionInfo, scope, CacheCategory.ORG, f);
 
     if (result.equals("true")) {
@@ -53,10 +53,10 @@ public class NpmClient {
     }
   }
 
-  List<NpmPackageIdentifier> checkUpstream(List<NpmPackageIdentifier> packages, ConnectionInfo connectionInfo) {
+  List<NpmPackageIdentifier> checkUpstream(List<NpmPackageIdentifier> packages, ConnectionInfo connectionInfo, int retries, long pauseSeconds) {
     var result = new ArrayList<NpmPackageIdentifier>();
     for (var packageName : packages) {
-      if (existsUpstream(packageName, connectionInfo)) {
+      if (existsUpstream(packageName, connectionInfo, retries, pauseSeconds)) {
         result.add(packageName);
       }
     }
@@ -64,8 +64,8 @@ public class NpmClient {
     return result;
   }
 
-  boolean existsUpstream(NpmPackageIdentifier packageName, ConnectionInfo connectionInfo) {
-      Supplier<String> f = () -> Boolean.toString(packageExists(packageName.toString(), connectionInfo));
+  boolean existsUpstream(NpmPackageIdentifier packageName, ConnectionInfo connectionInfo, int retries, long pauseSeconds) {
+      Supplier<String> f = () -> Boolean.toString(packageExists(packageName.toString(), connectionInfo, retries, pauseSeconds));
       var result = SimpleCache.getFromCacheOrExecute(connectionInfo, packageName.toString(), CacheCategory.PACKAGE_EXISTS, f);
 
       if (result.equals("true")) {
@@ -77,12 +77,12 @@ public class NpmClient {
       }
   }
 
-  boolean fetchOrgIsClaimed(ConnectionInfo connectionInfo, String scope) {
-    return HttpClient.exists(connectionInfo, "/org/" + scope);
+  boolean fetchOrgIsClaimed(ConnectionInfo connectionInfo, String scope, int retries, long pauseSeconds) {
+    return HttpClient.exists(connectionInfo, "/org/" + scope, retries, pauseSeconds);
   }
 
-  private boolean packageExists(String packageName, ConnectionInfo connectionInfo) {
-    return HttpClient.exists(connectionInfo, "/" + packageName);
+  private boolean packageExists(String packageName, ConnectionInfo connectionInfo, int retries, long pauseSeconds) {
+    return HttpClient.exists(connectionInfo, "/" + packageName, retries, pauseSeconds);
   }
 
   public ConnectionInfo upstream() {

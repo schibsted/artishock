@@ -48,23 +48,24 @@ public class Npm {
     return Intersection.cacheIntersection(localPackages, remoteCached);
   }
 
-  public List<NpmPackageIdentifier> inferredExclude(String local, String remote) {
+  public List<NpmPackageIdentifier> inferredExclude(String local, String remote, int retries, long pauseSeconds) {
     var localPackages = artifactoryClient.getAllNpmPackageIdentifiersForLocal(local);
 
     // TODO search for scoped packages? This will leak additional names upstream
     var localPackagesWithoutScope = packagesWithoutScope(localPackages);
 
-    var upstreamPackages = npmClient.getPackageList(localPackagesWithoutScope, npmClient.upstream());
+    var upstreamPackages = npmClient.getPackageList(localPackagesWithoutScope, npmClient.upstream(), retries, pauseSeconds);
 
-    var remotePackages = npmClient.getPackageList(localPackagesWithoutScope,
-        new ConnectionInfo(npmApi(config.getArtifactoryUrl(), remote), config.getArtifactoryUsername(), config.getArtifactoryPassword()));
+    var connectionInfo = new ConnectionInfo(npmApi(config.getArtifactoryUrl(), remote), config.getArtifactoryUsername(), config.getArtifactoryPassword());
+
+    var remotePackages = npmClient.getPackageList(localPackagesWithoutScope, connectionInfo, retries, pauseSeconds);
 
     upstreamPackages.removeAll(remotePackages);
     upstreamPackages.sort(Comparator.comparing(NpmPackageIdentifier::toString));
     return upstreamPackages;
   }
 
-  public List<NpmPackageOrScope> notClaimed(String local, Optional<String> excluded) {
+  public List<NpmPackageOrScope> notClaimed(String local, Optional<String> excluded, int retries, long pauseSeconds) {
     var localPackages = artifactoryClient.getAllNpmPackageIdentifiersForLocal(local);
 
     if (excluded.isPresent()) {
@@ -78,7 +79,7 @@ public class Npm {
         .distinct()
         .collect(Collectors.toList());
 
-    var upstreamPackages = npmClient.getPackageList(localPackagesWithoutScope, npmClient.upstream());
+    var upstreamPackages = npmClient.getPackageList(localPackagesWithoutScope, npmClient.upstream(), retries, pauseSeconds);
 
     localPackagesWithoutScope.removeAll(upstreamPackages);
 
@@ -86,7 +87,7 @@ public class Npm {
         .map(NpmPackageOrScope::new)
         .collect(Collectors.toList());
 
-    var notClaimedScopes = npmClient.notClaimedOrg(localScopes);
+    var notClaimedScopes = npmClient.notClaimedOrg(localScopes, retries, pauseSeconds);
 
     result.addAll(notClaimedScopes);
 
