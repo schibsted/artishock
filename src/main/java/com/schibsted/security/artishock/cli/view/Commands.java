@@ -7,6 +7,8 @@ package com.schibsted.security.artishock.cli.view;
 import com.schibsted.security.artishock.cli.viewmodel.Artishock;
 import java.util.List;
 import javax.inject.Inject;
+
+import com.schibsted.security.artishock.config.RateLimitRetryConfig;
 import io.airlift.airline.Command;
 import io.airlift.airline.Help;
 import io.airlift.airline.OptionType;
@@ -26,6 +28,10 @@ public class Commands {
   private static final String REMOTE_DESCRIPTION = "Name of an Artifactory repo of type remote";
   private static final String QUERY_UPSTREAM_NAME = "--query-upstream";
   private static final String QUERY_UPSTREAM_DESCRIPTION = "Acknowledge that this command sends internal package names upstream";
+  private static final String RETRIES_NAME = "--retries";
+  private static final String RETRIES_DESCRIPTION = "Number of retries on rate limiting, default 20";
+  private static final String PAUSE_SECONDS_NAME = "--pause-seconds";
+  private static final String PAUSE_SECONDS_DESCRIPTION = "Number of seconds to pause on a retry, default 5";
 
   private static Artishock confused() {
     return new Artishock();
@@ -170,11 +176,17 @@ public class Commands {
     @io.airlift.airline.Option(name = "--excluded", description = EXCLUDED_DESCRIPTION)
     public String excluded;
 
+    @io.airlift.airline.Option(name = RETRIES_NAME, description = RETRIES_DESCRIPTION)
+    public int retries = 20;
+
+    @io.airlift.airline.Option(name = PAUSE_SECONDS_NAME, description = PAUSE_SECONDS_DESCRIPTION)
+    public long pauseSeconds = 5;
+
     @Override
     public void run() {
       verboseAndHelp("exclude-candidates");
 
-      renderer().render(confused().excludeCandidates(packageSystem, local, trusted, excluded));
+      renderer().render(confused().excludeCandidates(packageSystem, local, trusted, excluded, new RateLimitRetryConfig(retries, pauseSeconds)));
     }
   }
 
@@ -189,11 +201,17 @@ public class Commands {
     @io.airlift.airline.Option(name = REMOTE_NAME, description = REMOTE_DESCRIPTION, required = true)
     public String remote;
 
+    @io.airlift.airline.Option(name = RETRIES_NAME, description = RETRIES_DESCRIPTION)
+    public int retries = 20;
+
+    @io.airlift.airline.Option(name = PAUSE_SECONDS_NAME, description = PAUSE_SECONDS_DESCRIPTION)
+    public long pauseSeconds = 5;
+
     @Override
     public void run() {
       verboseAndHelp("cached");
 
-      renderer().render(confused().cached(packageSystem, local, remote));
+      renderer().render(confused().cached(packageSystem, local, remote, new RateLimitRetryConfig(retries, pauseSeconds)));
     }
   }
 
@@ -211,11 +229,17 @@ public class Commands {
     @io.airlift.airline.Option(name = QUERY_UPSTREAM_NAME, description = QUERY_UPSTREAM_DESCRIPTION)
     boolean queryUpstream;
 
+    @io.airlift.airline.Option(name = RETRIES_NAME, description = RETRIES_DESCRIPTION)
+    public int retries = 20;
+
+    @io.airlift.airline.Option(name = PAUSE_SECONDS_NAME, description = PAUSE_SECONDS_DESCRIPTION)
+    public long pauseSeconds = 5;
+
     @Override
     public void run() {
       verboseAndHelp("inferred-exclude");
 
-      renderer().render(confused().inferredExclude(packageSystem, local, remote, queryUpstream));
+      renderer().render(confused().inferredExclude(packageSystem, local, remote, queryUpstream, new RateLimitRetryConfig(retries, pauseSeconds)));
     }
   }
 
@@ -233,11 +257,17 @@ public class Commands {
     @io.airlift.airline.Option(name = QUERY_UPSTREAM_NAME, description = QUERY_UPSTREAM_DESCRIPTION)
     boolean queryUpstream;
 
+    @io.airlift.airline.Option(name = RETRIES_NAME, description = RETRIES_DESCRIPTION)
+    public int retries = 20;
+
+    @io.airlift.airline.Option(name = PAUSE_SECONDS_NAME, description = PAUSE_SECONDS_DESCRIPTION)
+    public long pauseSeconds = 5;
+
     @Override
     public void run() {
       verboseAndHelp("not-claimed");
 
-      renderer().render(confused().notClaimed(packageSystem, local, excluded, queryUpstream));
+      renderer().render(confused().notClaimed(packageSystem, local, excluded, queryUpstream, new RateLimitRetryConfig(retries, pauseSeconds)));
     }
   }
 }
