@@ -7,6 +7,8 @@ package com.schibsted.security.artishock.cli.view;
 import com.schibsted.security.artishock.cli.viewmodel.Artishock;
 import java.util.List;
 import javax.inject.Inject;
+
+import com.schibsted.security.artishock.config.RateLimitRetryConfig;
 import io.airlift.airline.Command;
 import io.airlift.airline.Help;
 import io.airlift.airline.OptionType;
@@ -184,7 +186,7 @@ public class Commands {
     public void run() {
       verboseAndHelp("exclude-candidates");
 
-      renderer().render(confused().excludeCandidates(packageSystem, local, trusted, excluded, retries, pauseSeconds));
+      renderer().render(confused().excludeCandidates(packageSystem, local, trusted, excluded, new RateLimitRetryConfig(retries, pauseSeconds)));
     }
   }
 
@@ -209,7 +211,7 @@ public class Commands {
     public void run() {
       verboseAndHelp("cached");
 
-      renderer().render(confused().cached(packageSystem, local, remote, retries, pauseSeconds));
+      renderer().render(confused().cached(packageSystem, local, remote, new RateLimitRetryConfig(retries, pauseSeconds)));
     }
   }
 
@@ -237,7 +239,7 @@ public class Commands {
     public void run() {
       verboseAndHelp("inferred-exclude");
 
-      renderer().render(confused().inferredExclude(packageSystem, local, remote, queryUpstream, retries, pauseSeconds));
+      renderer().render(confused().inferredExclude(packageSystem, local, remote, queryUpstream, new RateLimitRetryConfig(retries, pauseSeconds)));
     }
   }
 
@@ -265,7 +267,7 @@ public class Commands {
     public void run() {
       verboseAndHelp("not-claimed");
 
-      renderer().render(confused().notClaimed(packageSystem, local, excluded, queryUpstream, retries, pauseSeconds));
+      renderer().render(confused().notClaimed(packageSystem, local, excluded, queryUpstream, new RateLimitRetryConfig(retries, pauseSeconds)));
     }
   }
 }

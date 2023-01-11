@@ -6,6 +6,8 @@ package com.schibsted.security.artishock.shared;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
+
+import com.schibsted.security.artishock.config.RateLimitRetryConfig;
 import okhttp3.Credentials;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -42,7 +44,7 @@ public class HttpClient {
     return requestBuilder.build();
   }
 
-  private static Response execute(Request request, int retries, long pauseSeconds) {
+  private static Response execute(Request request, RateLimitRetryConfig retryConfig) {
     log.info(() -> "Fetching " + request.url());
 
     int retry = 0;
@@ -52,7 +54,7 @@ public class HttpClient {
         if (response.code() == 429) {
           retry++;
           try {
-            Thread.sleep(pauseSeconds * 1000);
+            Thread.sleep(retryConfig.getPauseSeconds() * 1000);
           } catch (InterruptedException ignore) {
           }
         } else {
@@ -63,9 +65,9 @@ public class HttpClient {
       } catch (IOException e) {
         throw new RuntimeException("Failed to fetch " + request.url(), e);
       }
-    } while (retry < retries);
+    } while (retry < retryConfig.getRetries());
 
-    throw new RuntimeException("more than " + retries + " retries for " + request.url());
+    throw new RuntimeException("more than " + retryConfig.getRetries() + " retries for " + request.url());
   }
 
   private static void throwIfUnauthorized(Response response) {
@@ -75,10 +77,10 @@ public class HttpClient {
     }
   }
 
-  public static String fetch(ConnectionInfo connectionInfo, String path, int retries, long pauseSeconds) {
+  public static String fetch(ConnectionInfo connectionInfo, String path, RateLimitRetryConfig retryConfig) {
     var request = prepareRequest(connectionInfo, path);
 
-    try (var response = execute(request, retries, pauseSeconds)) {
+    try (var response = execute(request, retryConfig)) {
       if (!response.isSuccessful()) {
         throw new RuntimeException("Download not successful from " + request.url());
       }
@@ -95,10 +97,10 @@ public class HttpClient {
   /**
    * Returns true if response is 200, false if response is 404, throws otherwise
    */
-  public static boolean exists(ConnectionInfo connectionInfo, String path, int retries, long pauseSeconds) {
+  public static boolean exists(ConnectionInfo connectionInfo, String path, RateLimitRetryConfig retryConfig) {
     var request = prepareRequest(connectionInfo, path);
 
-    try (var response = execute(request, retries, pauseSeconds)) {
+    try (var response = execute(request, retryConfig)) {
       if (response.code() == 200) {
         return true;
       } else if (response.code() == 404) {

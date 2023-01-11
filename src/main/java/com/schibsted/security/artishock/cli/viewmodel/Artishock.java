@@ -6,6 +6,7 @@ package com.schibsted.security.artishock.cli.viewmodel;
 
 import com.google.common.base.Joiner;
 import com.schibsted.security.artishock.cli.viewmodel.types.PyPiPackageIdentifier;
+import com.schibsted.security.artishock.config.RateLimitRetryConfig;
 import com.schibsted.security.artishock.npm.Npm;
 import com.schibsted.security.artishock.artifactory.ArtifactoryClient;
 import com.schibsted.security.artishock.cli.viewmodel.types.ArtifactoryRepository;
@@ -53,7 +54,7 @@ public class Artishock {
     return new ArtifactoryRepositoryStats(packageName, artifactoryClient.packageStats(repoName, packageSystem, identifier));
   }
 
-  public List<Object> excludeCandidates(String packageSystem, String local, String trusted, String excluded, int retries, long pauseSeconds) {
+  public List<Object> excludeCandidates(String packageSystem, String local, String trusted, String excluded, RateLimitRetryConfig retryConfig) {
     var system = getPackageSystemOrThrow(packageSystem, List.of(PackageSystem.NPM, PackageSystem.PYPI));
 
     switch (system) {
@@ -63,7 +64,7 @@ public class Artishock {
             .collect(Collectors.toList());
       }
       case PYPI -> {
-        return pypi.excludeCandidates(local, Optional.ofNullable(trusted), Optional.ofNullable(excluded), retries, pauseSeconds).stream()
+        return pypi.excludeCandidates(local, Optional.ofNullable(trusted), Optional.ofNullable(excluded), retryConfig).stream()
             .map(PyPiPackageIdentifier::new)
             .collect(Collectors.toList());
       }
@@ -71,7 +72,7 @@ public class Artishock {
     }
   }
 
-  public List<Object> cached(String packageSystem, String local, String remote, int retries, long pauseSeconds) {
+  public List<Object> cached(String packageSystem, String local, String remote, RateLimitRetryConfig retryConfig) {
     var system = getPackageSystemOrThrow(packageSystem, List.of(PackageSystem.NPM, PackageSystem.PYPI));
 
     switch (system) {
@@ -81,7 +82,7 @@ public class Artishock {
             .collect(Collectors.toList());
       }
       case PYPI -> {
-        return pypi.cached(local, remote, retries, pauseSeconds).stream()
+        return pypi.cached(local, remote, retryConfig).stream()
             .map(PyPiPackageIdentifier::new)
             .collect(Collectors.toList());
       }
@@ -89,19 +90,19 @@ public class Artishock {
     }
   }
 
-  public List<Object> inferredExclude(String packageSystem, String local, String remote, boolean enableUpstream, int retries, long pauseSeconds) {
+  public List<Object> inferredExclude(String packageSystem, String local, String remote, boolean enableUpstream, RateLimitRetryConfig retryConfig) {
     verifyEnableUpstreamOrThrow(enableUpstream);
 
     var system = getPackageSystemOrThrow(packageSystem, List.of(PackageSystem.NPM, PackageSystem.PYPI));
 
     switch (system) {
       case NPM -> {
-        return npm.inferredExclude(local, remote, retries, pauseSeconds).stream()
+        return npm.inferredExclude(local, remote, retryConfig).stream()
             .map(NpmPackageIdentifier::new)
             .collect(Collectors.toList());
       }
       case PYPI -> {
-        return pypi.inferredExclude(local, remote, retries, pauseSeconds).stream()
+        return pypi.inferredExclude(local, remote, retryConfig).stream()
             .map(PyPiPackageIdentifier::new)
             .collect(Collectors.toList());
       }
@@ -109,19 +110,19 @@ public class Artishock {
     }
   }
 
-  public List<Object> notClaimed(String packageSystem, String local, String excluded, boolean enableUpstream, int retries, long pauseSeconds) {
+  public List<Object> notClaimed(String packageSystem, String local, String excluded, boolean enableUpstream, RateLimitRetryConfig retryConfig) {
     verifyEnableUpstreamOrThrow(enableUpstream);
 
     var system = getPackageSystemOrThrow(packageSystem, List.of(PackageSystem.NPM, PackageSystem.PYPI));
 
     switch (system) {
       case NPM -> {
-        return npm.notClaimed(local, Optional.ofNullable(excluded), retries, pauseSeconds).stream()
+        return npm.notClaimed(local, Optional.ofNullable(excluded), retryConfig).stream()
             .map(NpmPackageOrScope::new)
             .collect(Collectors.toList());
       }
       case PYPI -> {
-        return pypi.notClaimed(local, Optional.ofNullable(excluded), retries, pauseSeconds).stream()
+        return pypi.notClaimed(local, Optional.ofNullable(excluded), retryConfig).stream()
             .map(PyPiPackageIdentifier::new)
             .collect(Collectors.toList());
       }

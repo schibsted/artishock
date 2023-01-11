@@ -5,6 +5,7 @@
 package com.schibsted.security.artishock.pypi.client;
 
 import com.schibsted.security.artishock.config.Config;
+import com.schibsted.security.artishock.config.RateLimitRetryConfig;
 import com.schibsted.security.artishock.pypi.PyPiPackageIdentifier;
 import com.schibsted.security.artishock.shared.CacheCategory;
 import com.schibsted.security.artishock.shared.ConnectionInfo;
@@ -31,11 +32,11 @@ public class PyPiClient {
     return new ConnectionInfo("https://pypi.org");
   }
 
-  public List<PyPiPackageIdentifier> getAllPyPiPackageIdentifierFromIndex(String repositoryName, int retries, long pauseSeconds) {
+  public List<PyPiPackageIdentifier> getAllPyPiPackageIdentifierFromIndex(String repositoryName, RateLimitRetryConfig retryConfig) {
     log.info(() -> "Fetching PyPi package from index in " + repositoryName);
 
     var raw = getPackagesFromIndex(new ConnectionInfo(config.getArtifactoryUrl() + "/api/pypi/" + repositoryName,
-        config.getArtifactoryUsername(), config.getArtifactoryPassword()), "/simple/", retries, pauseSeconds);
+        config.getArtifactoryUsername(), config.getArtifactoryPassword()), "/simple/", retryConfig);
 
     var preprocessed = raw.replaceAll("\".*\"", "\"\"")
         .replace("\n", "")
@@ -58,8 +59,8 @@ public class PyPiClient {
     }
   }
 
-  public boolean packageExistsCached(ConnectionInfo connectionInfo, PyPiPackageIdentifier packageIdentifier, int retries, long pauseSeconds) {
-    Supplier<String> f = () -> Boolean.toString(packageExists(connectionInfo, packageIdentifier, retries, pauseSeconds));
+  public boolean packageExistsCached(ConnectionInfo connectionInfo, PyPiPackageIdentifier packageIdentifier, RateLimitRetryConfig retryConfig) {
+    Supplier<String> f = () -> Boolean.toString(packageExists(connectionInfo, packageIdentifier, retryConfig));
     var result = SimpleCache.getFromCacheOrExecute(connectionInfo, packageIdentifier.toString(), CacheCategory.PACKAGE_EXISTS, f);
 
     if (result.equals("true")) {
@@ -71,11 +72,11 @@ public class PyPiClient {
     }
   }
 
-  public boolean packageExists(ConnectionInfo connectionInfo, PyPiPackageIdentifier packageName, int retries, long pauseSeconds) {
-    return HttpClient.exists(connectionInfo, "/simple/" + packageName.getPackageName() + "/", retries, pauseSeconds);
+  public boolean packageExists(ConnectionInfo connectionInfo, PyPiPackageIdentifier packageName, RateLimitRetryConfig retryConfig) {
+    return HttpClient.exists(connectionInfo, "/simple/" + packageName.getPackageName() + "/", retryConfig);
   }
 
-  String getPackagesFromIndex(ConnectionInfo connectionInfo, String path, int retries, long pauseSeconds) {
-    return HttpClient.fetch(connectionInfo, path, retries, pauseSeconds);
+  String getPackagesFromIndex(ConnectionInfo connectionInfo, String path, RateLimitRetryConfig retryConfig) {
+    return HttpClient.fetch(connectionInfo, path, retryConfig);
   }
 }

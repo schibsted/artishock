@@ -6,6 +6,7 @@ package com.schibsted.security.artishock.npm;
 
 import com.schibsted.security.artishock.artifactory.ArtifactoryClient;
 import com.schibsted.security.artishock.config.Config;
+import com.schibsted.security.artishock.config.RateLimitRetryConfig;
 import com.schibsted.security.artishock.npm.client.NpmClient;
 import com.schibsted.security.artishock.shared.ConnectionInfo;
 import com.schibsted.security.artishock.shared.FileReader;
@@ -48,24 +49,24 @@ public class Npm {
     return Intersection.cacheIntersection(localPackages, remoteCached);
   }
 
-  public List<NpmPackageIdentifier> inferredExclude(String local, String remote, int retries, long pauseSeconds) {
+  public List<NpmPackageIdentifier> inferredExclude(String local, String remote, RateLimitRetryConfig retryConfig) {
     var localPackages = artifactoryClient.getAllNpmPackageIdentifiersForLocal(local);
 
     // TODO search for scoped packages? This will leak additional names upstream
     var localPackagesWithoutScope = packagesWithoutScope(localPackages);
 
-    var upstreamPackages = npmClient.getPackageList(localPackagesWithoutScope, npmClient.upstream(), retries, pauseSeconds);
+    var upstreamPackages = npmClient.getPackageList(localPackagesWithoutScope, npmClient.upstream(), retryConfig);
 
     var connectionInfo = new ConnectionInfo(npmApi(config.getArtifactoryUrl(), remote), config.getArtifactoryUsername(), config.getArtifactoryPassword());
 
-    var remotePackages = npmClient.getPackageList(localPackagesWithoutScope, connectionInfo, retries, pauseSeconds);
+    var remotePackages = npmClient.getPackageList(localPackagesWithoutScope, connectionInfo, retryConfig);
 
     upstreamPackages.removeAll(remotePackages);
     upstreamPackages.sort(Comparator.comparing(NpmPackageIdentifier::toString));
     return upstreamPackages;
   }
 
-  public List<NpmPackageOrScope> notClaimed(String local, Optional<String> excluded, int retries, long pauseSeconds) {
+  public List<NpmPackageOrScope> notClaimed(String local, Optional<String> excluded, RateLimitRetryConfig retryConfig) {
     var localPackages = artifactoryClient.getAllNpmPackageIdentifiersForLocal(local);
 
     if (excluded.isPresent()) {
@@ -79,7 +80,7 @@ public class Npm {
         .distinct()
         .collect(Collectors.toList());
 
-    var upstreamPackages = npmClient.getPackageList(localPackagesWithoutScope, npmClient.upstream(), retries, pauseSeconds);
+    var upstreamPackages = npmClient.getPackageList(localPackagesWithoutScope, npmClient.upstream(), retryConfig);
 
     localPackagesWithoutScope.removeAll(upstreamPackages);
 
@@ -87,7 +88,7 @@ public class Npm {
         .map(NpmPackageOrScope::new)
         .collect(Collectors.toList());
 
-    var notClaimedScopes = npmClient.notClaimedOrg(localScopes, retries, pauseSeconds);
+    var notClaimedScopes = npmClient.notClaimedOrg(localScopes, retryConfig);
 
     result.addAll(notClaimedScopes);
 
