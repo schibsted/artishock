@@ -191,16 +191,22 @@ public class ArtifactoryClient {
     }
   }
 
-  List<String> listTopLevelFolders(String repositoryName) {
+  private List<String> listTopLevelFolders(String repositoryName) {
     return listSubFolders(repositoryName, "/");
   }
 
-  List<String> listSubFolders(String repositoryName, String folderName) {
-    Folder folder = artifactory.repository(repositoryName).folder(folderName).info();
+  private List<String> listSubFolders(String repositoryName, String folderName) {
+    try {
+      Folder folder = artifactory.repository(repositoryName).folder(folderName).info();
 
-    return folder.getChildren().stream()
-        .map(Item::getUri)
-        .collect(Collectors.toList());
+      return folder.getChildren().stream()
+          .map(Item::getUri)
+          .collect(Collectors.toList());
+    } catch (Exception e) {
+      // This seems to happen if we have a local folder in the exclude list that have been deleted in artifactory.
+      // It doesn't seem serious enough to warrant that we print something here.
+      return List.of();
+    }
   }
 
   public Stats repoStats(String repoName, String packageSystem) {
@@ -211,7 +217,7 @@ public class ArtifactoryClient {
     return recursiveStats(repoName, packageName.toString(), archiveExtensions(packageSystem));
   }
 
-  List<String> archiveExtensions(String packageSystem) {
+  private List<String> archiveExtensions(String packageSystem) {
     return switch (packageSystem.toLowerCase(Locale.ENGLISH)) {
       case "maven" -> List.of(".jar", ".war", ".rar", ".ear", ".sar", ".apk", ".aar", ".par", ".kar");
       case "npm" -> List.of(".tgz");
