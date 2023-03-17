@@ -205,7 +205,11 @@ public class ArtifactoryClient {
     } catch (Exception e) {
       // This seems to happen if we have a local folder in the exclude list that have been deleted in artifactory.
       // It doesn't seem serious enough to warrant that we print something here.
-      return List.of();
+      if (e instanceof IOException) {
+        return List.of();
+      } else {
+        throw e;
+      }
     }
   }
 
