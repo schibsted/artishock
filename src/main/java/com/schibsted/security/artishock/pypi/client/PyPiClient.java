@@ -35,7 +35,7 @@ public class PyPiClient {
   public List<PyPiPackageIdentifier> getAllPyPiPackageIdentifierFromIndex(String repositoryName, RateLimitRetryConfig retryConfig) {
     log.info(() -> "Fetching PyPi package from index in " + repositoryName);
 
-    var raw = getPackagesFromIndex(new ConnectionInfo(config.getArtifactoryUrl() + "/api/pypi/" + repositoryName,
+    var raw = getPackagesFromIndex(new ConnectionInfo(config.getArtifactoryUrl() + "/" + repositoryName,
         config.getArtifactoryUsername(), config.getArtifactoryPassword()), "/simple/", retryConfig);
 
     var preprocessed = raw.replaceAll("\".*\"", "\"\"")

@@ -96,7 +96,7 @@ public class Pypi {
   }
 
   boolean existsInArtifactory(String repo, PyPiPackageIdentifier packageIdentifier, RateLimitRetryConfig retryConfig) {
-    return pyPiClient.packageExistsCached(new ConnectionInfo(config.getArtifactoryUrl() + "/api/pypi/" + repo,
+    return pyPiClient.packageExistsCached(new ConnectionInfo(config.getArtifactoryUrl() + "/" + repo,
             config.getArtifactoryUsername(),
             config.getArtifactoryPassword()),
         packageIdentifier, retryConfig);
